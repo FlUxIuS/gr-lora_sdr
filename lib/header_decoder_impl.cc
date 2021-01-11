@@ -43,6 +43,7 @@ header_decoder_impl::header_decoder_impl(bool impl_head, uint8_t cr,
   message_port_register_out(pmt::mp("pay_len"));
   message_port_register_out(pmt::mp("CRC"));
   message_port_register_out(pmt::mp("err"));
+  set_thread_priority(94);
 }
 /*
  * Our virtual destructor.

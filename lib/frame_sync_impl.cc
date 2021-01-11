@@ -89,6 +89,7 @@ frame_sync_impl::frame_sync_impl(float samp_rate, uint32_t bandwidth,
   //     // samples_file.open("../matlab/err_symb.txt", std::ios::out |
   //     std::ios::trunc );
   // #endif
+  set_thread_priority(99);
 }
 
 /**

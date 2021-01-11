@@ -26,6 +26,7 @@ crc_verif_impl::crc_verif_impl()
   message_port_register_in(pmt::mp("CRC"));
   set_msg_handler(pmt::mp("CRC"),
                   boost::bind(&crc_verif_impl::header_crc_handler, this, _1));
+  set_thread_priority(93);
 }
 
 /*

@@ -30,6 +30,7 @@ deinterleaver_impl::deinterleaver_impl(uint8_t sf)
   set_msg_handler(
       pmt::mp("new_frame"),
       boost::bind(&deinterleaver_impl::new_frame_handler, this, _1));
+  set_thread_priority(96);
 }
 
 /**

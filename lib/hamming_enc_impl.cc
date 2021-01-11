@@ -21,6 +21,8 @@ hamming_enc_impl::hamming_enc_impl(uint8_t cr, uint8_t sf)
                      gr::io_signature::make(1, 1, sizeof(uint8_t))) {
   m_cr = cr;
   m_sf = sf;
+  set_thread_priority(5);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -43,7 +45,7 @@ int hamming_enc_impl::work(int noutput_items,
                            gr_vector_void_star &output_items) {
   const uint8_t *in_data = (const uint8_t *)input_items[0];
   uint8_t *out = (uint8_t *)output_items[0];
-  
+
   std::vector<bool> data_bin;
   bool p0, p1, p2, p3, p4;
   //loop over the input items to do the actual hamming encoding

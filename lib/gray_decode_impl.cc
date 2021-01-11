@@ -18,6 +18,8 @@ gray_decode_impl::gray_decode_impl(uint8_t sf)
                      gr::io_signature::make(1, 1, sizeof(uint32_t)),
                      gr::io_signature::make(1, 1, sizeof(uint32_t))) {
   m_sf = sf;
+  set_thread_priority(5);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**

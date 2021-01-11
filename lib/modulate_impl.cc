@@ -1,6 +1,6 @@
 #include "modulate_impl.h"
 #include "debug_tools.h"
-//Fix for libboost > 1.75
+// Fix for libboost > 1.75
 #include <boost/bind/placeholders.hpp>
 
 using namespace boost::placeholders;
@@ -40,6 +40,8 @@ modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw)
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&modulate_impl::msg_handler, this, _1));
+  set_thread_priority(8);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -84,6 +86,9 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   const uint32_t *in = (const uint32_t *)input_items[0];
   gr_complex *out = (gr_complex *)output_items[0];
 
+
+
+
   noutput_items = m_samples_per_symbol;
   uint i = 0;
   // send preamble
@@ -115,14 +120,27 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
     consume_each(1);
   }
   symb_cnt++;
+  // std::cout<< "Test return tag !!!" << std::endl;
+  // std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  // get_tags_in_range(return_tag, 0, 780, 800);
+  // if (return_tag.size() > 0) {
+  //   std::cout << return_tag.size() << std::endl;
+  //   for (int i = 0; i < return_tag.size(); i++) {
+  //     std::cout << return_tag.at(i).value << std::endl;
+  //   }
+  //   // pmt::pmt_t ret =
+  // }
 
-// #ifdef GRLORA_DEBUG
-//   // get vector length
-//   double N = 1 << m_sf;
-//   // output the modulated signal to the debugger
-//   GR_LOG_DEBUG(this->d_logger,
-//                "Output Tx:" + complex_vector_2_string(&out[0], N));
-// #endif
+  // add_item_tag(0, nitems_written(0), pmt::intern("status_mod"),
+  //              pmt::intern("working"), pmt::intern("status_mod"));
+  // #ifdef GRLORA_DEBUG
+  //   // get vector length
+  //   double N = 1 << m_sf;
+  //   // output the modulated signal to the debugger
+  //   GR_LOG_DEBUG(this->d_logger,
+  //                "Output Tx:" + complex_vector_2_string(&out[0], N));
+  // #endif
 
   return (noutput_items);
 }

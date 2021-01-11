@@ -29,6 +29,7 @@ hamming_dec_impl::hamming_dec_impl()
   message_port_register_in(pmt::mp("new_frame"));
   set_msg_handler(pmt::mp("new_frame"),
                   boost::bind(&hamming_dec_impl::new_frame_handler, this, _1));
+  set_thread_priority(95);
 }
 /**
  * @brief Destroy the hamming dec impl object

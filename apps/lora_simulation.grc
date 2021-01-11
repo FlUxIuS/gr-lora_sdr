@@ -200,6 +200,63 @@ blocks:
     coordinate: [2016, 872.0]
     rotation: 0
     state: disabled
+- name: blocks_tag_debug_0
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'True'
+    filter: '""'
+    name: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1831, 284]
+    rotation: 0
+    state: disabled
+- name: blocks_tag_debug_0_0_0
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'True'
+    filter: '""'
+    name: ''
+    num_inputs: '1'
+    type: int
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1458, 265]
+    rotation: 0
+    state: enabled
+- name: blocks_tag_debug_0_0_0_0
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'True'
+    filter: '""'
+    name: ''
+    num_inputs: '1'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1101, 250]
+    rotation: 0
+    state: enabled
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -356,7 +413,7 @@ blocks:
     maxoutbuf: '0'
     mean: '200'
     minoutbuf: '0'
-    multi_control: multi_control
+    multi_control: 'False'
     n_frames: n_frame
     pay_len: pay_len
     string_input: ''
@@ -364,7 +421,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [250, 105]
+    coordinate: [256, 107]
     rotation: 0
     state: enabled
 - name: lora_sdr_deinterleaver_0
@@ -728,6 +785,7 @@ connections:
 - [lora_sdr_gray_enc_0, '0', lora_sdr_deinterleaver_0, '0']
 - [lora_sdr_hamming_dec_0, '0', lora_sdr_header_decoder_0, '0']
 - [lora_sdr_hamming_enc_0, '0', lora_sdr_interleaver_0, '0']
+- [lora_sdr_header_0, '0', blocks_tag_debug_0_0_0_0, '0']
 - [lora_sdr_header_0, '0', lora_sdr_add_crc_0, '0']
 - [lora_sdr_header_decoder_0, '0', lora_sdr_dewhitening_0, '0']
 - [lora_sdr_header_decoder_0, CR, lora_sdr_deinterleaver_0, CR]
@@ -742,6 +800,7 @@ connections:
 - [lora_sdr_header_decoder_0, pay_len, lora_sdr_dewhitening_0, pay_len]
 - [lora_sdr_header_decoder_0, pay_len, lora_sdr_frame_sync_0, pay_len]
 - [lora_sdr_hier_tx_0_0, '0', blocks_throttle_0_0, '0']
+- [lora_sdr_interleaver_0, '0', blocks_tag_debug_0_0_0, '0']
 - [lora_sdr_interleaver_0, '0', lora_sdr_gray_decode_0, '0']
 - [lora_sdr_modulate_0, '0', blocks_throttle_0_1, '0']
 - [lora_sdr_whitening_0, '0', lora_sdr_header_0, '0']

@@ -27,6 +27,8 @@ whitening_impl::whitening_impl()
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"), // This is the port identifier
                   boost::bind(&whitening_impl::msg_handler, this, _1));
+  set_thread_priority(2);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -81,7 +83,7 @@ int whitening_impl::work(int noutput_items,
     new_message = false;
 
   } else {
-    noutput_items = 0;
+    noutput_items = 1;
   }
 
   return noutput_items;

@@ -56,6 +56,7 @@ data_source_sim_impl::data_source_sim_impl(int pay_len, int n_frames,
                   [this](pmt::pmt_t msg) { this->ctrl_in_handler(msg); });
   message_port_register_out(pmt::mp("msg"));
   message_port_register_out(pmt::mp("ctrl_out"));
+  set_thread_priority(1);
 }
 
 /**
@@ -141,13 +142,16 @@ int data_source_sim_impl::general_work(int noutput_items,
       // send string over pmt port "msg" to neighboors
       message_port_pub(pmt::intern("msg"), pmt::mp(str));
       // print once in every 50 frames information about the number of frames
-      if (!mod(frame_cnt, 50))
+      if (!mod(frame_cnt, 50)) {
         GR_LOG_INFO(this->d_logger,
                     "INFO:Processing frame :" + std::to_string(frame_cnt) +
                         "/" + std::to_string(m_n_frames));
+      }
       // let this thread sleep for the inputted mean time.
       boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
       frame_cnt++;
+      // add_item_tag(0, 1024, pmt::intern("status"), pmt::intern("done"));
+      // add_item_tag(0, nitems_written(0)+(2 * m_pay_len), pmt::intern("status"), pmt::intern("working"),pmt::intern("data_source_sim"));
       return 2 * m_pay_len;
     }
     // if the number of frames is the same -> all frames are sent
@@ -155,7 +159,7 @@ int data_source_sim_impl::general_work(int noutput_items,
       GR_LOG_INFO(this->d_logger,
                   "INFO:Done with generating data packets!, generated : " +
                       std::to_string(m_n_frames) + " frames");
-
+      // 
       boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
       // if the multi control uses is not used, send done to the rest of the
       // chain
@@ -165,21 +169,27 @@ int data_source_sim_impl::general_work(int noutput_items,
                      "DEBUG:Work done!\nNo more new data packets, data packets "
                      "will be processed and program will exit thereafter...");
 #endif
-        return WORK_DONE;
+        add_item_tag(0, nitems_written(0), pmt::intern("status"), pmt::intern("done"));
+        return 1;
+        //return WORK_DONE;
       } else {
         std::cout << "Sending work_done to control port" << std::endl;
+        //tag the end of the Tx stream
+        add_item_tag(0, nitems_written(0), pmt::intern("status"), pmt::intern("done"));
+                // add_item_tag(0, 100, pmt::intern("status"), pmt::intern("done"));
+
         // send done signal to the multi controller
         message_port_pub(pmt::intern("ctrl_out"), d_pmt_done);
         // set internal sate to done, no more messages should be produced
         m_finished_wait = true;
-        return 0;
+        return 1;
       }
     } else {
       GR_LOG_DEBUG(this->d_logger,
                    "DEBUG:Something wrong in sending the frames to the blocks");
       return 0;
     }
-  } 
+  }
   if (m_finished == true) {
     std::cout << "Sending work_done to blocks" << std::endl;
     std::cout << m_finished << std::endl;

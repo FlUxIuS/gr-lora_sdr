@@ -54,6 +54,7 @@ documentation: |-
             N_frames: number of frames to send
             Input string: specific input string to be used, if empty random generated will be used
             mean : 
+            multi_control :
         Input:
             trigg: trigger signal
         Output:

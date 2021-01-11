@@ -24,6 +24,8 @@ add_crc_impl::add_crc_impl(bool has_crc)
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&add_crc_impl::msg_handler, this, _1));
+  set_thread_priority(4);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -94,7 +96,9 @@ int add_crc_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   const uint8_t *in = (const uint8_t *)input_items[0];
   uint8_t *out = (uint8_t *)output_items[0];
   memcpy(out, in, ninput_items[0] * sizeof(uint8_t));
-
+  if(ninput_items[0] ==1 ){
+    return 1;
+  }
   // if m_has_crc is True append the CRC to the payload
   if (m_has_crc) {
     uint16_t crc = 0x0000;

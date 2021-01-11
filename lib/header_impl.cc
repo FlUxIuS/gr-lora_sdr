@@ -28,6 +28,8 @@ header_impl::header_impl(bool impl_head, bool has_crc, uint8_t cr)
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&header_impl::msg_handler, this, _1));
+  set_thread_priority(3);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -67,7 +69,10 @@ int header_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
                               gr_vector_void_star &output_items) {
   const uint8_t *in = (const uint8_t *)input_items[0];
   uint8_t *out = (uint8_t *)output_items[0];
-
+  
+  if(ninput_items[0] ==1 ){
+    return 1;
+  }
   // no header to add
   if (m_impl_head){ 
     // copy input to the output

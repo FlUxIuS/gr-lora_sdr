@@ -29,6 +29,8 @@ interleaver_impl::interleaver_impl(uint8_t cr, uint8_t sf)
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&interleaver_impl::msg_handler, this, _1));
+  set_thread_priority(6);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**

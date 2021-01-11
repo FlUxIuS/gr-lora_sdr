@@ -62,13 +62,14 @@ void multi_control_impl::ctrl_in_handler(pmt::pmt_t msg) {
   if (m_cur_msg == m_num_ctrl ) {
 
     std::string ctrl_out;
+    message_port_pub(pmt::mp("ctrl_out1"), d_pmt_done);
     // iterate over all output ports and send done there
-    for (int i = 0; i < m_num_ctrl; i++) {
-      std::cout << "Publicating work_done" << std::endl;
-      ctrl_out = "ctrl_out" + std::to_string(i);
-      std::cout << ctrl_out << std::endl;
-      message_port_pub(pmt::mp(ctrl_out), d_pmt_done);
-    }
+    // for (int i = 0; i < m_num_ctrl; i++) {
+    //   std::cout << "Publicating work_done" << std::endl;
+    //   ctrl_out = "ctrl_out" + std::to_string(i);
+    //   std::cout << ctrl_out << std::endl;
+    //   message_port_pub(pmt::mp(ctrl_out), d_pmt_done);
+    // }
 
     // set internal state to finished, so we can close this thread
     m_finished = true;

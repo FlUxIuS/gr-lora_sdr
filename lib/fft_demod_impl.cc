@@ -53,6 +53,7 @@ fft_demod_impl::fft_demod_impl(float samp_rate, uint32_t bandwidth, uint8_t sf,
   message_port_register_in(pmt::mp("CR"));
   set_msg_handler(pmt::mp("CR"),
                   boost::bind(&fft_demod_impl::header_cr_handler, this, _1));
+  set_thread_priority(98);
   // #ifdef GRLORA_DEBUG
   // // idx_file.open("../matlab/stats/idx.txt", std::ios::out | std::ios::trunc
   // ); #endif
