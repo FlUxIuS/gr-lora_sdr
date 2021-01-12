@@ -45,7 +45,14 @@ int hamming_enc_impl::work(int noutput_items,
                            gr_vector_void_star &output_items) {
   const uint8_t *in_data = (const uint8_t *)input_items[0];
   uint8_t *out = (uint8_t *)output_items[0];
-
+    std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+                //  std::cout << "Test hamming"<< std::endl;
+  }
   std::vector<bool> data_bin;
   bool p0, p1, p2, p3, p4;
   //loop over the input items to do the actual hamming encoding

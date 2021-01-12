@@ -98,6 +98,7 @@ int dewhitening_impl::general_work(int noutput_items,
     // std::cout<<"DEwhit Sync Done" <<std::endl;
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
+                 consume_each(ninput_items[0]);
     return 1;
     //
     // std::cout << return_tag.size() << std::endl;

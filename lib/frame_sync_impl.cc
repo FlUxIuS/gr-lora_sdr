@@ -491,11 +491,12 @@ int frame_sync_impl::general_work(int noutput_items,
   // std::cout<< "Test return tag !!!" << std::endl;
   std::vector<tag_t> return_tag;
   // std::cout << nitems_read(0) << std::endl;
-  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 100000);
   if (return_tag.size() > 0) {
-    // std::cout<<"Frame Sync Done" <<std::endl;
+    std::cout<<"Frame Sync Done" <<std::endl;
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
+    consume_each(ninput_items[0]);
     return 1;
     //
     // std::cout << return_tag.size() << std::endl;

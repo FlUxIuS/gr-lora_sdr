@@ -10,8 +10,9 @@
 # GNU Radio version: 3.8.2.0
 
 from gnuradio import blocks
-from gnuradio import gr
+from gnuradio import filter
 from gnuradio.filter import firdes
+from gnuradio import gr
 import sys
 import signal
 from argparse import ArgumentParser
@@ -29,15 +30,10 @@ class lora_sim_multi(gr.top_block):
         # Variables
         ##################################################
         self.bw = bw = 250000
-        self.sf6 = sf6 = 12
-        self.sf5 = sf5 = 11
-        self.sf4 = sf4 = 10
-        self.sf3 = sf3 = 9
-        self.sf2 = sf2 = 8
-        self.sf = sf = 12
+        self.sf = sf = 11
         self.samp_rate = samp_rate = bw
         self.pay_len = pay_len = 64
-        self.n_frame = n_frame = 10
+        self.n_frame = n_frame = 8
         self.multi_control = multi_control = False
         self.mult_const = mult_const = 1
         self.impl_head = impl_head = True
@@ -49,6 +45,11 @@ class lora_sim_multi(gr.top_block):
         # Blocks
         ##################################################
         self.lora_sdr_hier_tx_0 = lora_sdr.hier_tx(pay_len, n_frame, 'sTomvXMuARDzMfJltZ4xSJ0dLGMDueK8PH00maiTXhiew9HzJmZzKNoP4zHkWGRC', cr, sf, impl_head,has_crc, samp_rate, bw, 200, multi_control)
+        self.lora_sdr_hier_rx_0 = lora_sdr.hier_rx(samp_rate, bw, sf, impl_head, cr, pay_len, has_crc)
+        self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_ccf(4, (-0.128616616593872,-0.212206590789194,-0.180063263231421,3.89817183251938e-17,0.300105438719035,0.636619772367581,0.900316316157106,1,0.900316316157106,0.636619772367581,0.300105438719035,3.89817183251938e-17,-0.180063263231421,-0.212206590789194,-0.128616616593872))
+        self.interp_fir_filter_xxx_0.declare_sample_delay(0)
+        self.interp_fir_filter_xxx_0.set_min_output_buffer(16384)
+        self.blocks_throttle_1 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,False)
         self.blocks_tag_debug_0_1 = blocks.tag_debug(gr.sizeof_gr_complex*1, 'after_tx', "")
         self.blocks_tag_debug_0_1.set_display(True)
 
@@ -57,7 +58,11 @@ class lora_sim_multi(gr.top_block):
         ##################################################
         # Connections
         ##################################################
+        self.msg_connect((self.lora_sdr_hier_rx_0, 'ctrl_out'), (self.lora_sdr_hier_tx_0, 'ctrl_in'))
+        self.connect((self.blocks_throttle_1, 0), (self.interp_fir_filter_xxx_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.lora_sdr_hier_rx_0, 0))
         self.connect((self.lora_sdr_hier_tx_0, 0), (self.blocks_tag_debug_0_1, 0))
+        self.connect((self.lora_sdr_hier_tx_0, 0), (self.blocks_throttle_1, 0))
 
 
     def get_bw(self):
@@ -66,36 +71,6 @@ class lora_sim_multi(gr.top_block):
     def set_bw(self, bw):
         self.bw = bw
         self.set_samp_rate(self.bw)
-
-    def get_sf6(self):
-        return self.sf6
-
-    def set_sf6(self, sf6):
-        self.sf6 = sf6
-
-    def get_sf5(self):
-        return self.sf5
-
-    def set_sf5(self, sf5):
-        self.sf5 = sf5
-
-    def get_sf4(self):
-        return self.sf4
-
-    def set_sf4(self, sf4):
-        self.sf4 = sf4
-
-    def get_sf3(self):
-        return self.sf3
-
-    def set_sf3(self, sf3):
-        self.sf3 = sf3
-
-    def get_sf2(self):
-        return self.sf2
-
-    def set_sf2(self, sf2):
-        self.sf2 = sf2
 
     def get_sf(self):
         return self.sf
@@ -108,6 +83,7 @@ class lora_sim_multi(gr.top_block):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.blocks_throttle_1.set_sample_rate(self.samp_rate)
 
     def get_pay_len(self):
         return self.pay_len

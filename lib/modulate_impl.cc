@@ -42,6 +42,7 @@ modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw)
                   boost::bind(&modulate_impl::msg_handler, this, _1));
   set_thread_priority(8);
   set_tag_propagation_policy(TPP_ALL_TO_ALL);
+  // set_min_output_buffer(10000000);
 }
 
 /**
@@ -85,50 +86,56 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   // cast input and output to the right data type
   const uint32_t *in = (const uint32_t *)input_items[0];
   gr_complex *out = (gr_complex *)output_items[0];
-
-  noutput_items = m_samples_per_symbol;
-  uint i = 0;
-  // send preamble
-  if (symb_cnt < n_up + 4.25) {
-    if (symb_cnt == 0) { // offset
-      uint off = 0;
-      // copy to the output
-      memcpy(&out[0], &m_upchirp[0], m_samples_per_symbol * sizeof(gr_complex));
-      noutput_items = m_samples_per_symbol + off;
-    } else if (symb_cnt < n_up) { // upchirps
-      memcpy(&out[0], &m_upchirp[0], m_samples_per_symbol * sizeof(gr_complex));
-    } else if (symb_cnt == n_up) { // network identifier 1
-      build_upchirp(&out[0], 8, m_sf);
-    } else if (symb_cnt == n_up + 1) { // network identifier 2
-      build_upchirp(&out[0], 16, m_sf);
-    } else if (symb_cnt < n_up + 4) { // downchirps
-      memcpy(&out[0], &m_downchirp[0],
-             m_samples_per_symbol * sizeof(gr_complex));
-    } else { // quarter of downchirp
-      memcpy(&out[0], &m_downchirp[0],
-             m_samples_per_symbol / 4 * sizeof(gr_complex));
-      noutput_items = m_samples_per_symbol / 4;
-    }
-  }
-  // payload
-  else {
-    // Returns an modulated upchirp using s_f=bw
-    build_upchirp(&out[0], in[0], m_sf);
-    consume_each(1);
-  }
-  symb_cnt++;
-
+  // std::cout << "Running modulate" << std::endl;
   std::vector<tag_t> return_tag;
   // std::cout << nitems_read(0) << std::endl;
-  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 100);
   if (return_tag.size() > 0) {
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
+    // std::cout << "Test modulate" << std::endl;
     // std::cout << return_tag.size() << std::endl;
     // for (int i = 0; i < return_tag.size(); i++) {
     //   std::cout << return_tag.at(i).value << std::endl;
     // }
     // pmt::pmt_t ret =
+    // consume_each(ninput_items[0]);
+    // noutput_items = 1;
+  } else {
+    noutput_items = m_samples_per_symbol;
+    uint i = 0;
+    // send preamble
+    if (symb_cnt < n_up + 4.25) {
+      if (symb_cnt == 0) { // offset
+        uint off = 0;
+        // copy to the output
+        memcpy(&out[0], &m_upchirp[0],
+               m_samples_per_symbol * sizeof(gr_complex));
+        noutput_items = m_samples_per_symbol + off;
+      } else if (symb_cnt < n_up) { // upchirps
+        memcpy(&out[0], &m_upchirp[0],
+               m_samples_per_symbol * sizeof(gr_complex));
+      } else if (symb_cnt == n_up) { // network identifier 1
+        build_upchirp(&out[0], 8, m_sf);
+      } else if (symb_cnt == n_up + 1) { // network identifier 2
+        build_upchirp(&out[0], 16, m_sf);
+      } else if (symb_cnt < n_up + 4) { // downchirps
+        memcpy(&out[0], &m_downchirp[0],
+               m_samples_per_symbol * sizeof(gr_complex));
+      } else { // quarter of downchirp
+        memcpy(&out[0], &m_downchirp[0],
+               m_samples_per_symbol / 4 * sizeof(gr_complex));
+        noutput_items = m_samples_per_symbol / 4;
+      }
+
+    }
+    // payload
+    else {
+      // Returns an modulated upchirp using s_f=bw
+      build_upchirp(&out[0], in[0], m_sf);
+      consume_each(1);
+    }
+    symb_cnt++;
   }
 
   // std::cout<< "Test return tag !!!" << std::endl;

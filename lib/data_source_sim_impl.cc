@@ -169,6 +169,7 @@ int data_source_sim_impl::general_work(int noutput_items,
                      "DEBUG:Work done!\nNo more new data packets, data packets "
                      "will be processed and program will exit thereafter...");
 #endif
+        std::cout << "Test sending data source" << std::endl;
         add_item_tag(0, nitems_written(0), pmt::intern("status"),
                      pmt::intern("done"));
         return 1;

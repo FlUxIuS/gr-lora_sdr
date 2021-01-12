@@ -69,6 +69,14 @@ void whitening_impl::msg_handler(pmt::pmt_t message) {
 int whitening_impl::work(int noutput_items,
                          gr_vector_const_void_star &input_items,
                          gr_vector_void_star &output_items) {
+    std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+  }
+
   if (new_message) {
     uint8_t *out = (uint8_t *)output_items[0];
     // do the actual whitening of the payload data

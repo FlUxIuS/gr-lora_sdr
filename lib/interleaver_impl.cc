@@ -88,10 +88,22 @@ int interleaver_impl::general_work(int noutput_items,
   // Empty interleaved matrix
   std::vector<std::vector<bool>> inter_bin(ppm, init_bit);
 
+    std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+                 std::cout << "Test interleaver"<< std::endl;
+                 consume_each(ninput_items[0]);
+                 return 1;
+                //  std::cout << "Test white"<< std::endl;
+  }
+
   if (ninput_items[0] == 1) {
     // std::cout << "Test interleaver" << std::endl;
     // std::cout << ninput_items[0] << std::endl;
-    consume_each(ninput_items[0]);
+    
     // std::cout<< "Test return tag !!!" << std::endl;
     std::vector<tag_t> return_tag;
     // std::cout << nitems_read(0) << std::endl;

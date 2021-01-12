@@ -106,6 +106,7 @@ int crc_verif_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
     std::cout << "TEst veryfiy" << std::endl;
     //message ctrl port we are done
     message_port_pub(pmt::mp("ctrl_out"),d_pmt_done);
+    consume_each(ninput_items[0]);
     //set internal state to being done
     return 1;
     // return WORK_DONE;
