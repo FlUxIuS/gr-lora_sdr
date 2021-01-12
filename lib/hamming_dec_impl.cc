@@ -2,7 +2,7 @@
 #include "hamming_dec_impl.h"
 #include <gnuradio/io_signature.h>
 #include <lora_sdr/utilities.h>
-//Fix for libboost > 1.75
+// Fix for libboost > 1.75
 #include <boost/bind/placeholders.hpp>
 
 using namespace boost::placeholders;
@@ -30,6 +30,7 @@ hamming_dec_impl::hamming_dec_impl()
   set_msg_handler(pmt::mp("new_frame"),
                   boost::bind(&hamming_dec_impl::new_frame_handler, this, _1));
   set_thread_priority(95);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 /**
  * @brief Destroy the hamming dec impl object

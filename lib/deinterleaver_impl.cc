@@ -1,7 +1,7 @@
 #include "deinterleaver_impl.h"
 #include <gnuradio/io_signature.h>
 #include <lora_sdr/utilities.h>
-//Fix for libboost > 1.75
+// Fix for libboost > 1.75
 #include <boost/bind/placeholders.hpp>
 
 using namespace boost::placeholders;
@@ -31,6 +31,7 @@ deinterleaver_impl::deinterleaver_impl(uint8_t sf)
       pmt::mp("new_frame"),
       boost::bind(&deinterleaver_impl::new_frame_handler, this, _1));
   set_thread_priority(96);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -84,6 +85,25 @@ int deinterleaver_impl::general_work(int noutput_items,
   uint8_t *out = (uint8_t *)output_items[0];
   sf_app = is_first ? m_sf - 2 : m_sf; // Use reduced rate for the first block
   cw_len = is_first ? 8 : m_cr + 4;
+
+    // std::cout<< "Test return tag !!!" << std::endl;
+  std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    // std::cout<<"Frame Sync Done" <<std::endl;
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+    return 1;
+    //
+    // std::cout << return_tag.size() << std::endl;
+    // for (int i = 0; i < return_tag.size(); i++) {
+    //   std::cout << return_tag.at(i).value << std::endl;
+    // }
+    // pmt::pmt_t ret =
+  }
+
+
   if (ninput_items[0] >= cw_len) { // wait for a full block to deinterleave
     // Create the empty matrices
     std::vector<std::vector<bool>> inter_bin(cw_len);

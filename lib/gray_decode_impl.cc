@@ -41,6 +41,7 @@ int gray_decode_impl::work(int noutput_items,
                            gr_vector_void_star &output_items) {
   const uint32_t *in = (const uint32_t *)input_items[0];
   uint32_t *out = (uint32_t *)output_items[0];
+  
   for (int i = 0; i < noutput_items; i++) {
 #ifdef GRLORA_DEBUG
 // std::cout<<std::hex<<"0x"<<in[i]<<" -->  ";

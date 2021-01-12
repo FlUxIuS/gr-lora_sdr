@@ -1,7 +1,7 @@
 
 #include "header_decoder_impl.h"
 #include <gnuradio/io_signature.h>
-//Fix for libboost > 1.75
+// Fix for libboost > 1.75
 #include <boost/bind/placeholders.hpp>
 
 using namespace boost::placeholders;
@@ -44,6 +44,7 @@ header_decoder_impl::header_decoder_impl(bool impl_head, uint8_t cr,
   message_port_register_out(pmt::mp("CRC"));
   message_port_register_out(pmt::mp("err"));
   set_thread_priority(94);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 /*
  * Our virtual destructor.
@@ -87,99 +88,102 @@ int header_decoder_impl::general_work(int noutput_items,
   const uint8_t *in = (const uint8_t *)input_items[0];
   uint8_t *out = (uint8_t *)output_items[0];
   nout = 0;
-  if (is_first) {
-    if (m_impl_header) { // implicit header, all parameters should have been
-                         // provided
-      message_port_pub(pmt::intern("CR"), pmt::mp(m_cr));
-      message_port_pub(pmt::intern("CRC"), pmt::mp(m_has_crc));
-      message_port_pub(pmt::intern("pay_len"), pmt::mp(m_payload_len));
-
-      for (int i = 0; i < ninput_items[0]; i++) {
-        // only output payload or CRC
-        if (pay_cnt < m_payload_len * 2 + (m_has_crc ? 4 : 0)) {
-          out[i] = in[i];
-          pay_cnt++;
-        }
-      }
-      is_first = false;
-      consume_each(ninput_items[0]);
-      return pay_cnt;
-    } else { // explicit header to decode
-      // std::cout<<"--------Header--------"<<std::endl;
-      m_payload_len = (in[0] << 4) + in[1];
-      m_has_crc = in[2] & 1;
-      m_cr = in[2] >> 1;
-
-      header_chk = ((in[3] & 1) << 4) + in[4];
-
-      // check header Checksum
-      bool c4 = (in[0] & 0b1000) >> 3 ^ (in[0] & 0b0100) >> 2 ^
-                (in[0] & 0b0010) >> 1 ^ (in[0] & 0b0001);
-      bool c3 = (in[0] & 0b1000) >> 3 ^ (in[1] & 0b1000) >> 3 ^
-                (in[1] & 0b0100) >> 2 ^ (in[1] & 0b0010) >> 1 ^
-                (in[2] & 0b0001);
-      bool c2 = (in[0] & 0b0100) >> 2 ^ (in[1] & 0b1000) >> 3 ^
-                (in[1] & 0b0001) ^ (in[2] & 0b1000) >> 3 ^
-                (in[2] & 0b0010) >> 1;
-      bool c1 = (in[0] & 0b0010) >> 1 ^ (in[1] & 0b0100) >> 2 ^
-                (in[1] & 0b0001) ^ (in[2] & 0b0100) >> 2 ^
-                (in[2] & 0b0010) >> 1 ^ (in[2] & 0b0001);
-      bool c0 = (in[0] & 0b0001) ^ (in[1] & 0b0010) >> 1 ^
-                (in[2] & 0b1000) >> 3 ^ (in[2] & 0b0100) >> 2 ^
-                (in[2] & 0b0010) >> 1 ^ (in[2] & 0b0001);
-#ifdef GRLORA_DEBUG
-      GR_LOG_DEBUG(this->d_logger,
-                   "DEBUG: Payload length:" + std::to_string(m_payload_len));
-      GR_LOG_DEBUG(this->d_logger,
-                   "DEBUG: CRC presence:" + std::to_string(m_has_crc));
-      GR_LOG_DEBUG(this->d_logger,
-                   "DEBUG: Coding rate:" + std::to_string(m_cr));
-#endif
-
-      if (header_chk -
-          ((int)(c4 << 4) + (c3 << 3) + (c2 << 2) + (c1 << 1) + c0)) {
-#ifdef GRLORA_DEBUG
-        GR_LOG_DEBUG(this->d_logger, "DEBUG: Header checksum valid!");
-#endif
-        message_port_pub(pmt::intern("err"), pmt::mp(true));
-        noutput_items = 0;
-      } else {
-        GR_LOG_INFO(this->d_logger, "Header checksum invalid!");
-#ifdef GRLORA_DEBUG
-        GR_LOG_DEBUG(this->d_logger, "DEBUG: Header checksum invalid!");
-// std::cout<<"should have "<<(int)header_chk<<std::endl;
-// std::cout<<"got: "<<(int)(c4<<4)+(c3<<3)+(c2<<2)+(c1<<1)+c0<<std::endl;
-#endif
+  if (ninput_items[0] == 1) {
+    consume_each(ninput_items[0]);
+    return 1;
+  } else {
+    if (is_first) {
+      if (m_impl_header) { // implicit header, all parameters should have been
+                           // provided
         message_port_pub(pmt::intern("CR"), pmt::mp(m_cr));
         message_port_pub(pmt::intern("CRC"), pmt::mp(m_has_crc));
         message_port_pub(pmt::intern("pay_len"), pmt::mp(m_payload_len));
-        noutput_items = ninput_items[0] - header_len;
-      }
-      for (int i = header_len, j = 0; i < ninput_items[0]; i++, j++) {
-        out[j] = in[i];
-        pay_cnt++;
-      }
-      is_first = false;
 
-      consume_each(ninput_items[0]);
-      return noutput_items;
-    }
-  } else { // no header to decode
-    for (int i = 0; i < ninput_items[0]; i++) {
-      if (pay_cnt <
-          m_payload_len * 2 +
-              (m_has_crc
-                   ? 4
-                   : 0)) { // only output usefull value (payload and CRC if any)
-        nout++;
-        pay_cnt++;
-        out[i] = in[i];
+        for (int i = 0; i < ninput_items[0]; i++) {
+          // only output payload or CRC
+          if (pay_cnt < m_payload_len * 2 + (m_has_crc ? 4 : 0)) {
+            out[i] = in[i];
+            pay_cnt++;
+          }
+        }
+        is_first = false;
+        consume_each(ninput_items[0]);
+        return pay_cnt;
+      } else { // explicit header to decode
+        // std::cout<<"--------Header--------"<<std::endl;
+        m_payload_len = (in[0] << 4) + in[1];
+        m_has_crc = in[2] & 1;
+        m_cr = in[2] >> 1;
+
+        header_chk = ((in[3] & 1) << 4) + in[4];
+
+        // check header Checksum
+        bool c4 = (in[0] & 0b1000) >> 3 ^ (in[0] & 0b0100) >> 2 ^
+                  (in[0] & 0b0010) >> 1 ^ (in[0] & 0b0001);
+        bool c3 = (in[0] & 0b1000) >> 3 ^ (in[1] & 0b1000) >> 3 ^
+                  (in[1] & 0b0100) >> 2 ^ (in[1] & 0b0010) >> 1 ^
+                  (in[2] & 0b0001);
+        bool c2 = (in[0] & 0b0100) >> 2 ^ (in[1] & 0b1000) >> 3 ^
+                  (in[1] & 0b0001) ^ (in[2] & 0b1000) >> 3 ^
+                  (in[2] & 0b0010) >> 1;
+        bool c1 = (in[0] & 0b0010) >> 1 ^ (in[1] & 0b0100) >> 2 ^
+                  (in[1] & 0b0001) ^ (in[2] & 0b0100) >> 2 ^
+                  (in[2] & 0b0010) >> 1 ^ (in[2] & 0b0001);
+        bool c0 = (in[0] & 0b0001) ^ (in[1] & 0b0010) >> 1 ^
+                  (in[2] & 0b1000) >> 3 ^ (in[2] & 0b0100) >> 2 ^
+                  (in[2] & 0b0010) >> 1 ^ (in[2] & 0b0001);
+#ifdef GRLORA_DEBUG
+        GR_LOG_DEBUG(this->d_logger,
+                     "DEBUG: Payload length:" + std::to_string(m_payload_len));
+        GR_LOG_DEBUG(this->d_logger,
+                     "DEBUG: CRC presence:" + std::to_string(m_has_crc));
+        GR_LOG_DEBUG(this->d_logger,
+                     "DEBUG: Coding rate:" + std::to_string(m_cr));
+#endif
+
+        if (header_chk -
+            ((int)(c4 << 4) + (c3 << 3) + (c2 << 2) + (c1 << 1) + c0)) {
+#ifdef GRLORA_DEBUG
+          GR_LOG_DEBUG(this->d_logger, "DEBUG: Header checksum valid!");
+#endif
+          message_port_pub(pmt::intern("err"), pmt::mp(true));
+          noutput_items = 0;
+        } else {
+          GR_LOG_INFO(this->d_logger, "Header checksum invalid!");
+#ifdef GRLORA_DEBUG
+          GR_LOG_DEBUG(this->d_logger, "DEBUG: Header checksum invalid!");
+// std::cout<<"should have "<<(int)header_chk<<std::endl;
+// std::cout<<"got: "<<(int)(c4<<4)+(c3<<3)+(c2<<2)+(c1<<1)+c0<<std::endl;
+#endif
+          message_port_pub(pmt::intern("CR"), pmt::mp(m_cr));
+          message_port_pub(pmt::intern("CRC"), pmt::mp(m_has_crc));
+          message_port_pub(pmt::intern("pay_len"), pmt::mp(m_payload_len));
+          noutput_items = ninput_items[0] - header_len;
+        }
+        for (int i = header_len, j = 0; i < ninput_items[0]; i++, j++) {
+          out[j] = in[i];
+          pay_cnt++;
+        }
+        is_first = false;
+
+        consume_each(ninput_items[0]);
+        return noutput_items;
       }
+    } else { // no header to decode
+      for (int i = 0; i < ninput_items[0]; i++) {
+        if (pay_cnt < m_payload_len * 2 +
+                          (m_has_crc ? 4 : 0)) { // only output usefull value
+                                                 // (payload and CRC if any)
+          nout++;
+          pay_cnt++;
+          out[i] = in[i];
+        }
+      }
+      consume_each(ninput_items[0]);
+      return nout;
     }
-    consume_each(ninput_items[0]);
-    return nout;
+    return 0;
   }
-  return 0;
 }
 } // namespace lora_sdr
 } /* namespace gr */

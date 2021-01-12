@@ -86,9 +86,6 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   const uint32_t *in = (const uint32_t *)input_items[0];
   gr_complex *out = (gr_complex *)output_items[0];
 
-
-
-
   noutput_items = m_samples_per_symbol;
   uint i = 0;
   // send preamble
@@ -120,6 +117,20 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
     consume_each(1);
   }
   symb_cnt++;
+
+  std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+    // std::cout << return_tag.size() << std::endl;
+    // for (int i = 0; i < return_tag.size(); i++) {
+    //   std::cout << return_tag.at(i).value << std::endl;
+    // }
+    // pmt::pmt_t ret =
+  }
+
   // std::cout<< "Test return tag !!!" << std::endl;
   // std::vector<tag_t> return_tag;
   // std::cout << nitems_read(0) << std::endl;

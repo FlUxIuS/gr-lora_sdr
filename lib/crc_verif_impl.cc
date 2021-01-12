@@ -26,6 +26,7 @@ crc_verif_impl::crc_verif_impl()
   message_port_register_in(pmt::mp("CRC"));
   set_msg_handler(pmt::mp("CRC"),
                   boost::bind(&crc_verif_impl::header_crc_handler, this, _1));
+  message_port_register_out(pmt::mp("ctrl_out"));
   set_thread_priority(93);
 }
 
@@ -95,6 +96,20 @@ int crc_verif_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
                                  gr_vector_const_void_star &input_items,
                                  gr_vector_void_star &output_items) {
   uint8_t *in = (uint8_t *)input_items[0];
+
+  //return tag vector
+  std::vector<tag_t> return_tag;
+  //get tags from stream
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  //if we found tags
+  if (return_tag.size() > 0) {
+    std::cout << "TEst veryfiy" << std::endl;
+    //message ctrl port we are done
+    message_port_pub(pmt::mp("ctrl_out"),d_pmt_done);
+    //set internal state to being done
+    return 1;
+    // return WORK_DONE;
+  }
 
   for (size_t i = 0; i < ninput_items[0]; i++) {
     in_buff.push_back(in[i]);

@@ -71,6 +71,7 @@ int header_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   uint8_t *out = (uint8_t *)output_items[0];
   
   if(ninput_items[0] ==1 ){
+    consume_each(ninput_items[0]);
     return 1;
   }
   // no header to add

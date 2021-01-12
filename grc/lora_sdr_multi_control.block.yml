@@ -22,7 +22,6 @@ parameters:
 #      * optional (optional - set to 1 for optional inputs. Default is 0)
 inputs:
 -   domain: message
-    multiplicity: ${num_ctrl}
     id: ctrl_in
 
 outputs:

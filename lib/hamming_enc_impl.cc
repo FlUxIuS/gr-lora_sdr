@@ -50,12 +50,8 @@ int hamming_enc_impl::work(int noutput_items,
   bool p0, p1, p2, p3, p4;
   //loop over the input items to do the actual hamming encoding
   for (int i = 0; i < noutput_items; i++) {
-// #ifdef GRLORA_DEBUG
-// // std::cout<<std::hex<<(int)in_data[i]<<"   ";
-// #endif
     uint8_t cr_app = (i < m_sf - 2) ? 4 : m_cr;
     data_bin = int2bool(in_data[i], 4);
-
     // the data_bin is msb first
     if (cr_app != 1) { // need hamming parity bits
       p0 = data_bin[3] ^ data_bin[2] ^ data_bin[1];
@@ -72,9 +68,6 @@ int hamming_enc_impl::work(int noutput_items,
       out[i] = (data_bin[3] << 4 | data_bin[2] << 3 | data_bin[1] << 2 |
                 data_bin[0] << 1 | p4);
     }
-// #ifdef GRLORA_DEBUG
-//     // std::cout<<std::hex<<(int)out[i]<<std::dec<<std::endl;
-// #endif
   }
 
   return noutput_items;

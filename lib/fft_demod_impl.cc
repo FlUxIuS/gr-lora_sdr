@@ -54,6 +54,7 @@ fft_demod_impl::fft_demod_impl(float samp_rate, uint32_t bandwidth, uint8_t sf,
   set_msg_handler(pmt::mp("CR"),
                   boost::bind(&fft_demod_impl::header_cr_handler, this, _1));
   set_thread_priority(98);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
   // #ifdef GRLORA_DEBUG
   // // idx_file.open("../matlab/stats/idx.txt", std::ios::out | std::ios::trunc
   // ); #endif
@@ -143,6 +144,7 @@ int fft_demod_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
                                  gr_vector_void_star &output_items) {
   const gr_complex *in = (const gr_complex *)input_items[0];
   uint32_t *out = (uint32_t *)output_items[0];
+
   if (is_first || received_cr) {
     // shift by -1 and use reduce rate if first block (header)
     output.push_back(mod(get_symbol_val(in) - 1, (1 << m_sf)) /

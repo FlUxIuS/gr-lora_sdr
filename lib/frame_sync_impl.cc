@@ -1,6 +1,6 @@
 #include "frame_sync_impl.h"
 #include <gnuradio/io_signature.h>
-//Fix for libboost > 1.75
+// Fix for libboost > 1.75
 #include <boost/bind/placeholders.hpp>
 
 using namespace boost::placeholders;
@@ -90,6 +90,7 @@ frame_sync_impl::frame_sync_impl(float samp_rate, uint32_t bandwidth,
   //     std::ios::trunc );
   // #endif
   set_thread_priority(99);
+  set_tag_propagation_policy(TPP_ALL_TO_ALL);
 }
 
 /**
@@ -107,7 +108,7 @@ frame_sync_impl::~frame_sync_impl() {}
  */
 void frame_sync_impl::forecast(int noutput_items,
                                gr_vector_int &ninput_items_required) {
-  //TODO fix : for sf=11 and sf=12
+  // TODO fix : for sf=11 and sf=12
   ninput_items_required[0] = usFactor * (m_samples_per_symbol + 2);
   // if(m_sf <= 10){
   //   ninput_items_required[0] = usFactor * (m_samples_per_symbol + 2);
@@ -487,6 +488,23 @@ int frame_sync_impl::general_work(int noutput_items,
   const gr_complex *in = (const gr_complex *)input_items[0];
   gr_complex *out = (gr_complex *)output_items[0];
 
+  // std::cout<< "Test return tag !!!" << std::endl;
+  std::vector<tag_t> return_tag;
+  // std::cout << nitems_read(0) << std::endl;
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  if (return_tag.size() > 0) {
+    // std::cout<<"Frame Sync Done" <<std::endl;
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+    return 1;
+    //
+    // std::cout << return_tag.size() << std::endl;
+    // for (int i = 0; i < return_tag.size(); i++) {
+    //   std::cout << return_tag.at(i).value << std::endl;
+    // }
+    // pmt::pmt_t ret =
+  }
+
   // downsampling
   for (int ii = 0; ii < m_number_of_bins; ii++) {
     in_down[ii] =
@@ -666,7 +684,7 @@ int frame_sync_impl::general_work(int noutput_items,
 
         message_port_pub(pmt::intern("new_frame"), pmt::mp((long)CFOint));
       }
-      //TODO: figure outlogic behind
+      // TODO: figure outlogic behind
       else {
         //
         CFOint = ceil(double(down_val - (int)m_number_of_bins) / 2);
@@ -675,7 +693,10 @@ int frame_sync_impl::general_work(int noutput_items,
             pmt::intern("new_frame"),
             pmt::mp((long)((m_number_of_bins + CFOint) % m_number_of_bins)));
 #ifdef GRLORA_DEBUG
-        GR_LOG_DEBUG(this->d_logger, "DEBUG:CFOint:" + std::to_string(((m_number_of_bins + CFOint) % m_number_of_bins)));
+        GR_LOG_DEBUG(this->d_logger,
+                     "DEBUG:CFOint:" +
+                         std::to_string(
+                             ((m_number_of_bins + CFOint) % m_number_of_bins)));
 #endif
       }
       items_to_consume =

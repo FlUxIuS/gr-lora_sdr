@@ -31,15 +31,16 @@ multi_control_impl::multi_control_impl(int num_ctrl)
   m_cur_msg = 0;
   // Generate ports and port msg handler
   std::string ctrl_in, ctrl_out;
+  //register control input port
+  message_port_register_in(pmt::mp(ctrl_in));
+  // set msg handler for the input port to be the ctrl_in_handler
+  set_msg_handler(pmt::mp(ctrl_in),
+                  [this](pmt::pmt_t msg) { this->ctrl_in_handler(msg); });
+  // generate the control output ports as function of the number of output
+  // ports
   for (int i = 0; i < m_num_ctrl; i++) {
-    // generate the input and output ports
-    ctrl_in = "ctrl_in" + std::to_string(i);
     ctrl_out = "ctrl_out" + std::to_string(i);
     message_port_register_out(pmt::mp(ctrl_out));
-    message_port_register_in(pmt::mp(ctrl_in));
-    // set msg handler for the input port to be the ctrl_in_handler
-    set_msg_handler(pmt::mp(ctrl_in),
-                    [this](pmt::pmt_t msg) { this->ctrl_in_handler(msg); });
   }
 }
 
@@ -52,28 +53,28 @@ multi_control_impl::~multi_control_impl() {}
 void multi_control_impl::ctrl_in_handler(pmt::pmt_t msg) {
   m_cur_msg++;
 
-  std::cout << "Got a work_done" << std::endl;
+  std::cout << "Got a work_done stream"  << std::endl;
   std::cout << m_finished << std::endl;
   std::cout << m_cur_msg << std::endl;
-  std::cout << m_num_ctrl<< std::endl;
+  std::cout << m_num_ctrl << std::endl;
 
   // If the number of ctrl messages is the same as we need, we can send
   // WORK_DONE to all and stop this thread.
-  if (m_cur_msg == m_num_ctrl ) {
+
 
     std::string ctrl_out;
-    message_port_pub(pmt::mp("ctrl_out1"), d_pmt_done);
+    // message_port_pub(pmt::mp("ctrl_out1"), d_pmt_done);
     // iterate over all output ports and send done there
-    // for (int i = 0; i < m_num_ctrl; i++) {
-    //   std::cout << "Publicating work_done" << std::endl;
-    //   ctrl_out = "ctrl_out" + std::to_string(i);
-    //   std::cout << ctrl_out << std::endl;
-    //   message_port_pub(pmt::mp(ctrl_out), d_pmt_done);
-    // }
+    for (int i = 0; i < m_num_ctrl; i++) {
+      std::cout << "Publicating work_done" << std::endl;
+      ctrl_out = "ctrl_out" + std::to_string(i);
+      std::cout << ctrl_out << std::endl;
+      message_port_pub(pmt::mp(ctrl_out), d_pmt_done);
+    }
 
     // set internal state to finished, so we can close this thread
     m_finished = true;
-  }
+  
 }
 
 /**
