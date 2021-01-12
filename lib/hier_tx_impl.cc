@@ -83,11 +83,6 @@ hier_tx_impl::hier_tx_impl(int pay_len, int n_frames, std::string src_data,
   gr::lora_sdr::modulate::sptr modulate(
       gr::lora_sdr::modulate::make(sf, samp_rate, bw));
   gr::hier_block2::set_min_output_buffer(10000000);
-//   gr::blocks::tag_debug::sptr tag_debug(gr::blocks::tag_debug::make(sizeof(gr_complex*1, ' ', ""));
-//   blocks::tag_debug::sptr tag_debug(
-      
-//   );
-//   this->blocks_tag_debug_0 = blocks::tag_debug::make(sizeof(gr_complex*1, '', "");
   // Connections
   // Message connections
   message_port_register_hier_in(pmt::mp("ctrl_in"));

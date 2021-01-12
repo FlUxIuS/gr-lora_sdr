@@ -47,7 +47,6 @@ int gray_decode_impl::work(int noutput_items,
   if (return_tag.size() > 0) {
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
-                 std::cout << "Test gray decode"<< std::endl;
                  return 1;
   }
   if (noutput_items > 1) {

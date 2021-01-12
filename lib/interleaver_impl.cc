@@ -94,7 +94,6 @@ int interleaver_impl::general_work(int noutput_items,
   if (return_tag.size() > 0) {
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
-                 std::cout << "Test interleaver"<< std::endl;
                  consume_each(ninput_items[0]);
                  return 1;
                 //  std::cout << "Test white"<< std::endl;

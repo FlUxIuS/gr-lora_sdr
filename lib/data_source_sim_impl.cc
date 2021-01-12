@@ -161,33 +161,32 @@ int data_source_sim_impl::general_work(int noutput_items,
                       std::to_string(m_n_frames) + " frames");
       //
       boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
-      // if the multi control uses is not used, send done to the rest of the
-      // chain
-      if (m_multi_control == false) {
+
+      // tag the end of the Tx stream
+      add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                   pmt::intern("done"));
+      // set internal sate to done, no more messages should be produced
+      m_finished_wait = true;
 #ifdef GRLORA_DEBUG
-        GR_LOG_DEBUG(this->d_logger,
-                     "DEBUG:Work done!\nNo more new data packets, data packets "
-                     "will be processed and program will exit thereafter...");
+      GR_LOG_DEBUG(this->d_logger,
+                   "DEBUG:Work done!\nNo more new data packets, data packets "
+                   "will be processed and program will exit thereafter...");
 #endif
-        std::cout << "Test sending data source" << std::endl;
-        add_item_tag(0, nitems_written(0), pmt::intern("status"),
-                     pmt::intern("done"));
-        return 1;
-        // return WORK_DONE;
-      } else {
-        std::cout << "Sending work_done to control port" << std::endl;
-        // tag the end of the Tx stream
-        add_item_tag(0, nitems_written(0), pmt::intern("status"),
-                     pmt::intern("done"));
-        // set internal sate to done, no more messages should be produced
-        m_finished_wait = true;
-        return 1;
-      }
+      std::cout << m_finished_wait << std::endl;
+      return 1;
+
     } else {
       GR_LOG_DEBUG(this->d_logger,
                    "DEBUG:Something wrong in sending the frames to the blocks");
       return 0;
     }
+  }
+  if (m_finished_wait == true && m_finished == false ) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
+    // tag the end of the Tx stream
+    add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                 pmt::intern("done"));
+    return 1;
   }
   if (m_finished == true) {
     std::cout << "Sending work_done to blocks" << std::endl;

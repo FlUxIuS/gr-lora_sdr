@@ -93,19 +93,13 @@ int dewhitening_impl::general_work(int noutput_items,
       // std::cout<< "Test return tag !!!" << std::endl;
   std::vector<tag_t> return_tag;
   // std::cout << nitems_read(0) << std::endl;
-  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 100);
+  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 100000);
   if (return_tag.size() > 0) {
-    // std::cout<<"DEwhit Sync Done" <<std::endl;
+    std::cout<<"DEwhit Sync Done" <<std::endl;
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
                  consume_each(ninput_items[0]);
     return 1;
-    //
-    // std::cout << return_tag.size() << std::endl;
-    // for (int i = 0; i < return_tag.size(); i++) {
-    //   std::cout << return_tag.at(i).value << std::endl;
-    // }
-    // pmt::pmt_t ret =
   }
 
 

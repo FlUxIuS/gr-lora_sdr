@@ -86,73 +86,45 @@ int deinterleaver_impl::general_work(int noutput_items,
   sf_app = is_first ? m_sf - 2 : m_sf; // Use reduced rate for the first block
   cw_len = is_first ? 8 : m_cr + 4;
 
-    // std::cout<< "Test return tag !!!" << std::endl;
   std::vector<tag_t> return_tag;
+  // std::cout << "Deinterleaver read" << std::endl;
   // std::cout << nitems_read(0) << std::endl;
-  get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
+  get_tags_in_range(return_tag, 0, 0, 10000);
   if (return_tag.size() > 0) {
-    // std::cout<<"Frame Sync Done" <<std::endl;
+    std::cout << "Deinterleaver Done" << std::endl;
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
     consume_each(ninput_items[0]);
     return 1;
-    //
-    // std::cout << return_tag.size() << std::endl;
-    // for (int i = 0; i < return_tag.size(); i++) {
-    //   std::cout << return_tag.at(i).value << std::endl;
-    // }
-    // pmt::pmt_t ret =
-  }
-
-
-  if (ninput_items[0] >= cw_len) { // wait for a full block to deinterleave
-    // Create the empty matrices
-    std::vector<std::vector<bool>> inter_bin(cw_len);
-    std::vector<bool> init_bit(cw_len, 0);
-    std::vector<std::vector<bool>> deinter_bin(sf_app, init_bit);
-
-    // convert decimal vector to binary vector of vector
-    for (int i = 0; i < cw_len; i++) {
-      inter_bin[i] = int2bool(in[i], sf_app);
-    }
-    // #ifdef GRLORA_DEBUG
-    // // std::cout<<"interleaved----"  <<std::endl;
-    // // for (uint32_t i =0u ; i<cw_len ;i++){
-    // //     for(int j=0;j<int(sf_app);j++){
-    // //         std::cout<<inter_bin[i][j];
-    // //     }
-    // //     std::cout<<" "<<(int)in[i]<< std::endl;
-    // // }
-    // // std::cout<<std::endl;
-    // #endif
-    // Do the actual deinterleaving
-    for (int32_t i = 0; i < cw_len; i++) {
-      for (int32_t j = 0; j < int(sf_app); j++) {
-        deinter_bin[mod((i - j - 1), sf_app)][i] = inter_bin[i][j];
-      }
-    }
-    // transform codewords from binary vector to dec
-    for (uint i = 0; i < sf_app; i++) {
-      out[i] = bool2int(deinter_bin[i]);
-    }
-
-    // #ifdef GRLORA_DEBUG
-    // // std::cout<<"codewords----"  <<std::endl;
-    // // for (uint32_t i =0u ; i<sf_app ;i++){
-    // //     for(int j=0;j<int(cw_len);j++){
-    // //         std::cout<<deinter_bin[i][j];
-    // //     }
-    // //     std::cout<<" 0x"<<std::hex<<(int)out[i]<<std::dec<< std::endl;
-    // // }
-    // // std::cout<<std::endl;
-    // #endif
-
-    consume_each(is_first ? 8 : m_cr + 4);
-    is_first = false;
-    return sf_app;
   } else {
-    // fix compile return type compile warning
-    return 0;
+    if (ninput_items[0] >= cw_len) { // wait for a full block to deinterleave
+      // Create the empty matrices
+      std::vector<std::vector<bool>> inter_bin(cw_len);
+      std::vector<bool> init_bit(cw_len, 0);
+      std::vector<std::vector<bool>> deinter_bin(sf_app, init_bit);
+
+      // convert decimal vector to binary vector of vector
+      for (int i = 0; i < cw_len; i++) {
+        inter_bin[i] = int2bool(in[i], sf_app);
+      }
+
+      // Do the actual deinterleaving
+      for (int32_t i = 0; i < cw_len; i++) {
+        for (int32_t j = 0; j < int(sf_app); j++) {
+          deinter_bin[mod((i - j - 1), sf_app)][i] = inter_bin[i][j];
+        }
+      }
+      // transform codewords from binary vector to dec
+      for (uint i = 0; i < sf_app; i++) {
+        out[i] = bool2int(deinter_bin[i]);
+      }
+
+      consume_each(is_first ? 8 : m_cr + 4);
+      is_first = false;
+      return sf_app;
+    } else {
+      return 0;
+    }
   }
 }
 } // namespace lora_sdr

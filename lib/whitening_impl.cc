@@ -51,10 +51,6 @@ void whitening_impl::msg_handler(pmt::pmt_t message) {
   }
     // copy string into variable m_payload
     std::copy(str.begin(), str.end(), std::back_inserter(m_payload));
-#ifdef GRLORA_DEBUG
-  // if debugging is turned on debug the input message
-  GR_LOG_DEBUG(this->d_logger, "Input Tx:" + str);
-#endif
   new_message = true;
 }
 
