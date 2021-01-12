@@ -30,6 +30,7 @@
 #include "lora_sdr/hier_tx.h"
 #include "lora_sdr/data_source_sim.h"
 #include "lora_sdr/multi_control.h"
+#include "lora_sdr/adder.h"
 %}
 
 
@@ -77,3 +78,5 @@ GR_SWIG_BLOCK_MAGIC2(lora_sdr, hier_tx);
 GR_SWIG_BLOCK_MAGIC2(lora_sdr, data_source_sim);
 %include "lora_sdr/multi_control.h"
 GR_SWIG_BLOCK_MAGIC2(lora_sdr, multi_control);
+%include "lora_sdr/adder.h"
+GR_SWIG_BLOCK_MAGIC2(lora_sdr, adder);

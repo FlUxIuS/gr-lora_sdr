@@ -44,5 +44,6 @@ install(FILES
     hier_rx.h
     hier_tx.h
     data_source_sim.h
-    multi_control.h DESTINATION include/lora_sdr
+    multi_control.h
+    adder.h DESTINATION include/lora_sdr
 )

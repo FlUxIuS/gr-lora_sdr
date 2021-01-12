@@ -108,7 +108,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 'True'
+    value: 'False'
   states:
     bus_sink: false
     bus_source: false
@@ -120,7 +120,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '8'
+    value: '1'
   states:
     bus_sink: false
     bus_source: false
@@ -168,41 +168,21 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '11'
+    value: '7'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [405, 95]
+    coordinate: [394, 100]
     rotation: 0
     state: enabled
-- name: blocks_add_xx_2
-  id: blocks_add_xx
+- name: blocks_null_sink_0
+  id: blocks_null_sink
   parameters:
     affinity: ''
     alias: ''
+    bus_structure_sink: '[[0,],]'
     comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [485, 306]
-    rotation: 0
-    state: true
-- name: blocks_tag_debug_0
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_thort
     num_inputs: '1'
     type: complex
     vlen: '1'
@@ -210,26 +190,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [859, 283]
-    rotation: 0
-    state: true
-- name: blocks_tag_debug_0_0
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: before_throt
-    num_inputs: '1'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [585, 208]
+    coordinate: [682, 309]
     rotation: 0
     state: true
 - name: blocks_throttle_1
@@ -248,9 +209,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 310]
+    coordinate: [665, 354]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: interp_fir_filter_xxx_0
   id: interp_fir_filter_xxx
   parameters:
@@ -267,9 +228,25 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [837, 483]
+    coordinate: [960, 354]
     rotation: 0
-    state: enabled
+    state: disabled
+- name: lora_sdr_adder_0
+  id: lora_sdr_adder
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [452, 350]
+    rotation: 0
+    state: true
 - name: lora_sdr_hier_rx_0
   id: lora_sdr_hier_rx
   parameters:
@@ -289,9 +266,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1114, 446]
+    coordinate: [1222, 318]
     rotation: 0
-    state: true
+    state: disabled
 - name: lora_sdr_hier_tx_0
   id: lora_sdr_hier_tx
   parameters:
@@ -305,7 +282,7 @@ blocks:
     maxoutbuf: '0'
     mean: '200'
     minoutbuf: '0'
-    multi_control: multi_control
+    multi_control: 'True'
     n_frames: n_frame
     pay_len: pay_len
     samp_rate: samp_rate
@@ -315,7 +292,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [205, 375]
+    coordinate: [158, 424]
     rotation: 0
     state: enabled
 - name: lora_sdr_hier_tx_0_2
@@ -331,7 +308,7 @@ blocks:
     maxoutbuf: '0'
     mean: '200'
     minoutbuf: '0'
-    multi_control: 'False'
+    multi_control: 'True'
     n_frames: n_frame
     pay_len: pay_len
     samp_rate: samp_rate
@@ -341,7 +318,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [207, 158]
+    coordinate: [161, 167]
     rotation: 0
     state: enabled
 - name: lora_sdr_multi_control_1
@@ -357,19 +334,18 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [-98, 341]
+    coordinate: [-137, 358]
     rotation: 0
-    state: true
+    state: disabled
 
 connections:
-- [blocks_add_xx_2, '0', blocks_tag_debug_0_0, '0']
-- [blocks_add_xx_2, '0', blocks_throttle_1, '0']
-- [blocks_throttle_1, '0', blocks_tag_debug_0, '0']
 - [blocks_throttle_1, '0', interp_fir_filter_xxx_0, '0']
 - [interp_fir_filter_xxx_0, '0', lora_sdr_hier_rx_0, '0']
+- [lora_sdr_adder_0, '0', blocks_null_sink_0, '0']
+- [lora_sdr_adder_0, '0', blocks_throttle_1, '0']
 - [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_multi_control_1, ctrl_in]
-- [lora_sdr_hier_tx_0, '0', blocks_add_xx_2, '0']
-- [lora_sdr_hier_tx_0_2, '0', blocks_add_xx_2, '1']
+- [lora_sdr_hier_tx_0, '0', lora_sdr_adder_0, '1']
+- [lora_sdr_hier_tx_0_2, '0', lora_sdr_adder_0, '0']
 - [lora_sdr_multi_control_1, ctrl_out0, lora_sdr_hier_tx_0_2, ctrl_in]
 - [lora_sdr_multi_control_1, ctrl_out1, lora_sdr_hier_tx_0, ctrl_in]
 

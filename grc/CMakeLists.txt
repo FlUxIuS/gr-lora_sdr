@@ -40,5 +40,6 @@ install(FILES
     lora_sdr_hier_rx.block.yml
     lora_sdr_hier_tx.block.yml
     lora_sdr_data_source_sim.block.yml
-    lora_sdr_multi_control.block.yml DESTINATION share/gnuradio/grc/blocks
+    lora_sdr_multi_control.block.yml
+    lora_sdr_adder.block.yml DESTINATION share/gnuradio/grc/blocks
 )
