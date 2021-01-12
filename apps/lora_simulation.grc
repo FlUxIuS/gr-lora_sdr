@@ -377,7 +377,7 @@ blocks:
     maxoutbuf: '0'
     mean: '200'
     minoutbuf: '0'
-    multi_control: 'False'
+    multi_control: 'True'
     n_frames: n_frame
     pay_len: pay_len
     string_input: ''
