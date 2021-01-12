@@ -174,8 +174,10 @@ int data_source_sim_impl::general_work(int noutput_items,
                    "will be processed and program will exit thereafter...");
 #endif
       std::cout << m_finished_wait << std::endl;
-      return 1;
+            std::cout << m_finished << std::endl;
+      std::cout << m_multi_control << std::endl;
 
+      return 1;
     } else {
       GR_LOG_DEBUG(this->d_logger,
                    "DEBUG:Something wrong in sending the frames to the blocks");
@@ -183,8 +185,15 @@ int data_source_sim_impl::general_work(int noutput_items,
     }
   }
   if (m_finished_wait == true && m_finished == false &&
+      m_multi_control == false){
+        
+        boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
+      }
+  if (m_finished_wait == true && m_finished == false &&
       m_multi_control == true) {
     boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
+          std::cout << "Tagging end of the stream"<< std::endl;
+
     // tag the end of the Tx stream
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
