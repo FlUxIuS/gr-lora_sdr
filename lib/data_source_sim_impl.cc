@@ -161,10 +161,11 @@ int data_source_sim_impl::general_work(int noutput_items,
                       std::to_string(m_n_frames) + " frames");
       //
       boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
-
-      // tag the end of the Tx stream
-      add_item_tag(0, nitems_written(0), pmt::intern("status"),
-                   pmt::intern("done"));
+      if (m_multi_control == true) {
+        // tag the end of the Tx stream
+        add_item_tag(0, nitems_written(0), pmt::intern("status"),
+                     pmt::intern("done"));
+      }
       // set internal sate to done, no more messages should be produced
       m_finished_wait = true;
 #ifdef GRLORA_DEBUG
@@ -181,7 +182,8 @@ int data_source_sim_impl::general_work(int noutput_items,
       return 0;
     }
   }
-  if (m_finished_wait == true && m_finished == false ) {
+  if (m_finished_wait == true && m_finished == false &&
+      m_multi_control == true) {
     boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
     // tag the end of the Tx stream
     add_item_tag(0, nitems_written(0), pmt::intern("status"),

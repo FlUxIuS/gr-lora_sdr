@@ -30,11 +30,11 @@ multi_control_impl::multi_control_impl(int num_ctrl)
   m_finished = false;
   m_cur_msg = 0;
   // Generate ports and port msg handler
-  std::string ctrl_in, ctrl_out;
+  std::string ctrl_out;
   //register control input port
-  message_port_register_in(pmt::mp(ctrl_in));
+  message_port_register_in(pmt::mp("ctrl_in"));
   // set msg handler for the input port to be the ctrl_in_handler
-  set_msg_handler(pmt::mp(ctrl_in),
+  set_msg_handler(pmt::mp("ctrl_in"),
                   [this](pmt::pmt_t msg) { this->ctrl_in_handler(msg); });
   // generate the control output ports as function of the number of output
   // ports
@@ -51,11 +51,9 @@ multi_control_impl::multi_control_impl(int num_ctrl)
 multi_control_impl::~multi_control_impl() {}
 
 void multi_control_impl::ctrl_in_handler(pmt::pmt_t msg) {
-  m_cur_msg++;
 
   std::cout << "Got a work_done stream"  << std::endl;
   std::cout << m_finished << std::endl;
-  std::cout << m_cur_msg << std::endl;
   std::cout << m_num_ctrl << std::endl;
 
   // If the number of ctrl messages is the same as we need, we can send

@@ -87,85 +87,42 @@ int interleaver_impl::general_work(int noutput_items,
   std::vector<bool> init_bit(m_sf, 0);
   // Empty interleaved matrix
   std::vector<std::vector<bool>> inter_bin(ppm, init_bit);
-
-    std::vector<tag_t> return_tag;
+  std::vector<tag_t> return_tag;
   // std::cout << nitems_read(0) << std::endl;
   get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
   if (return_tag.size() > 0) {
+    std::cout << "TEst interleaver" << std::endl;
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
-                 consume_each(ninput_items[0]);
-                 return 1;
-                //  std::cout << "Test white"<< std::endl;
-  }
-
-  if (ninput_items[0] == 1) {
-    // std::cout << "Test interleaver" << std::endl;
-    // std::cout << ninput_items[0] << std::endl;
-    
-    // std::cout<< "Test return tag !!!" << std::endl;
-    std::vector<tag_t> return_tag;
-    // std::cout << nitems_read(0) << std::endl;
-    get_tags_in_range(return_tag, 0, 0, nitems_read(0)+1);
-    if (return_tag.size() > 0) {
-      add_item_tag(0, nitems_written(0), pmt::intern("status"), pmt::intern("done")); 
-      // std::cout << return_tag.size() << std::endl;
-      // for (int i = 0; i < return_tag.size(); i++) {
-      //   std::cout << return_tag.at(i).value << std::endl;
-      // }
-      // pmt::pmt_t ret =
-    }
-
+    consume_each(ninput_items[0]);
     return 1;
-  } else {
-
-    // Convert to input codewords to binary vector of vector
-    for (int i = 0; i < sf_app; i++) {
-      if (i >= ninput_items[0])
-        cw_bin[i] = int2bool(0, ppm);
-      else
-        cw_bin[i] = int2bool(in[i], ppm);
-      cw_cnt++;
-    }
-
-    // #ifdef GRLORA_DEBUG
-    // // GR_LOG_DEBUG(this->d_logger, "----Codewords----");
-    // //  for (uint32_t i =0u ; i<sf_app ;i++){
-    // //      for(int j=0;j<int(ppm);j++){
-    // //          std::cout<<cw_bin[i][j];
-    // //      }
-    // //      std::cout<<" 0x"<<std::hex<<(int)in[i]<<std::dec<< std::endl;
-    // //  }
-    // //  std::cout<<std::endl;
-    // #endif
-    // Do the actual interleaving
-    for (int32_t i = 0; i < ppm; i++) {
-      for (int32_t j = 0; j < int(sf_app); j++) {
-        inter_bin[i][j] = cw_bin[mod((i - j - 1), sf_app)][i];
-      }
-      // For the first block we add a parity bit and a zero in the end of the
-      // lora symbol(reduced rate)
-      if (cw_cnt == m_sf - 2)
-        inter_bin[i][sf_app] =
-            accumulate(inter_bin[i].begin(), inter_bin[i].end(), 0) % 2;
-
-      out[i] = bool2int(inter_bin[i]);
-    }
-
-    // #ifdef GRLORA_DEBUG
-    // // GR_LOG_DEBUG(this->d_logger, "----Interleaved----");
-    // // for (uint32_t i =0u ; i<ppm ;i++){
-    // //    for(int j=0;j<int(m_sf);j++){
-    // //        std::cout<<inter_bin[i][j];
-    // //    }
-    // //    std::cout<<" "<<out[i]<< std::endl;
-    // //}
-    // // std::cout<<std::endl;
-    // #endif
-    consume_each(ninput_items[0] > sf_app ? sf_app : ninput_items[0]);
-
-    return ppm;
   }
+  // Convert to input codewords to binary vector of vector
+  for (int i = 0; i < sf_app; i++) {
+    if (i >= ninput_items[0])
+      cw_bin[i] = int2bool(0, ppm);
+    else
+      cw_bin[i] = int2bool(in[i], ppm);
+    cw_cnt++;
+  }
+
+  // Do the actual interleaving
+  for (int32_t i = 0; i < ppm; i++) {
+    for (int32_t j = 0; j < int(sf_app); j++) {
+      inter_bin[i][j] = cw_bin[mod((i - j - 1), sf_app)][i];
+    }
+    // For the first block we add a parity bit and a zero in the end of the
+    // lora symbol(reduced rate)
+    if (cw_cnt == m_sf - 2)
+      inter_bin[i][sf_app] =
+          accumulate(inter_bin[i].begin(), inter_bin[i].end(), 0) % 2;
+
+    out[i] = bool2int(inter_bin[i]);
+  }
+
+  consume_each(ninput_items[0] > sf_app ? sf_app : ninput_items[0]);
+
+  return ppm;
 }
 
 } // namespace lora_sdr
