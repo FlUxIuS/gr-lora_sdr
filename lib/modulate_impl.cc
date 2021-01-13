@@ -7,8 +7,10 @@ using namespace boost::placeholders;
 namespace gr {
 namespace lora_sdr {
 
-modulate::sptr modulate::make(uint8_t sf, uint32_t samp_rate, uint32_t bw) {
-  return gnuradio::get_initial_sptr(new modulate_impl(sf, samp_rate, bw));
+modulate::sptr modulate::make(uint8_t sf, uint32_t samp_rate, uint32_t bw,
+                              bool multi_control) {
+  return gnuradio::get_initial_sptr(
+      new modulate_impl(sf, samp_rate, bw, multi_control));
 }
 
 /**
@@ -18,7 +20,8 @@ modulate::sptr modulate::make(uint8_t sf, uint32_t samp_rate, uint32_t bw) {
  * @param samp_rate sampling rate
  * @param bw bandwith
  */
-modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw)
+modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw,
+                             bool multi_control)
     : gr::block("modulate", gr::io_signature::make(1, 1, sizeof(uint32_t)),
                 gr::io_signature::make(1, 1, sizeof(gr_complex))) {
 
@@ -38,6 +41,7 @@ modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw)
   n_up = 8;
   symb_cnt = 0;
   m_zero_output = false;
+  m_multi_control = multi_control;
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&modulate_impl::msg_handler, this, _1));
@@ -95,16 +99,24 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   if (return_tag.size() > 0) {
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
-    m_zero_output = true;
+    if (m_multi_control == false) {
+      m_zero_output = true;
+    }
     consume_each(ninput_items[0]);
-    //upsampling factor
+    // upsampling factor
     noutput_items = 4;
   }
   if (m_zero_output == true) {
-    memset(&out[0],0,m_samples_per_symbol * sizeof(gr_complex));
+    // for (int i = 0; i < m_samples_per_symbol; i++) {
+    //   out[0] = 0;
+    // }
+    memcpy(&out[0], 0, m_samples_per_symbol * sizeof(gr_complex));
+    // unsigned char val = 0;
+    // int *zero = (int *)val;
+    // memset(&out[0], *zero, m_samples_per_symbol * sizeof(gr_complex));
     noutput_items = m_samples_per_symbol;
     consume_each(ninput_items[0]);
-    return noutput_items;
+    // return noutput_items;
   } else {
     noutput_items = m_samples_per_symbol;
     uint i = 0;
@@ -141,28 +153,6 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
     }
     symb_cnt++;
   }
-
-  // std::cout<< "Test return tag !!!" << std::endl;
-  // std::vector<tag_t> return_tag;
-  // std::cout << nitems_read(0) << std::endl;
-  // get_tags_in_range(return_tag, 0, 780, 800);
-  // if (return_tag.size() > 0) {
-  //   std::cout << return_tag.size() << std::endl;
-  //   for (int i = 0; i < return_tag.size(); i++) {
-  //     std::cout << return_tag.at(i).value << std::endl;
-  //   }
-  //   // pmt::pmt_t ret =
-  // }
-
-  // add_item_tag(0, nitems_written(0), pmt::intern("status_mod"),
-  //              pmt::intern("working"), pmt::intern("status_mod"));
-  // #ifdef GRLORA_DEBUG
-  //   // get vector length
-  //   double N = 1 << m_sf;
-  //   // output the modulated signal to the debugger
-  //   GR_LOG_DEBUG(this->d_logger,
-  //                "Output Tx:" + complex_vector_2_string(&out[0], N));
-  // #endif
 
   return (noutput_items);
 }

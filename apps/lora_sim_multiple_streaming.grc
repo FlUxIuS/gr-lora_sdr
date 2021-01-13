@@ -194,30 +194,23 @@ blocks:
     coordinate: [659, 355]
     rotation: 0
     state: true
-- name: blocks_message_debug_0
-  id: blocks_message_debug
+- name: blocks_tag_debug_0
+  id: blocks_tag_debug
   parameters:
     affinity: ''
     alias: ''
     comment: ''
+    display: 'True'
+    filter: '""'
+    name: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1668, 422]
-    rotation: 0
-    state: true
-- name: blocks_message_debug_0_0
-  id: blocks_message_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [177, 196]
+    coordinate: [763, 439]
     rotation: 0
     state: true
 - name: blocks_throttle_1
@@ -319,7 +312,7 @@ blocks:
     maxoutbuf: '0'
     mean: '200'
     minoutbuf: '0'
-    multi_control: 'True'
+    multi_control: 'False'
     n_frames: n_frame
     pay_len: pay_len
     samp_rate: samp_rate
@@ -350,14 +343,13 @@ blocks:
     state: enabled
 
 connections:
+- [blocks_add_xx_0, '0', blocks_tag_debug_0, '0']
 - [blocks_add_xx_0, '0', blocks_throttle_1, '0']
 - [blocks_throttle_1, '0', interp_fir_filter_xxx_0, '0']
 - [interp_fir_filter_xxx_0, '0', lora_sdr_hier_rx_0, '0']
-- [lora_sdr_hier_rx_0, ctrl_out, blocks_message_debug_0, print]
 - [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_multi_control_1, ctrl_in]
 - [lora_sdr_hier_tx_0, '0', blocks_add_xx_0, '1']
 - [lora_sdr_hier_tx_0_2, '0', blocks_add_xx_0, '0']
-- [lora_sdr_multi_control_1, ctrl_out0, blocks_message_debug_0_0, print]
 - [lora_sdr_multi_control_1, ctrl_out0, lora_sdr_hier_tx_0_2, ctrl_in]
 - [lora_sdr_multi_control_1, ctrl_out1, lora_sdr_hier_tx_0, ctrl_in]
 

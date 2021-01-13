@@ -81,7 +81,7 @@ hier_tx_impl::hier_tx_impl(int pay_len, int n_frames, std::string src_data,
       gr::lora_sdr::gray_decode::make(sf));
   // modulate
   gr::lora_sdr::modulate::sptr modulate(
-      gr::lora_sdr::modulate::make(sf, samp_rate, bw));
+      gr::lora_sdr::modulate::make(sf, samp_rate, bw, multi_control));
   gr::hier_block2::set_min_output_buffer(10000000);
   // Connections
   // Message connections

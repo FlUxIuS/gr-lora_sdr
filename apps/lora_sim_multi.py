@@ -46,15 +46,15 @@ class lora_sim_multi(gr.top_block):
         # Blocks
         ##################################################
         self.lora_sdr_multi_control_1 = lora_sdr.multi_control(2)
-        self.lora_sdr_hier_tx_0_2 = lora_sdr.hier_tx(pay_len, n_frame, 'sTomvXMuARDzMfJltZ4xSJ0dLGMDueK8PH00maiTXhiew9HzJmZzKNoP4zHkWGRC', cr, sf1, impl_head,has_crc, samp_rate, bw, 200, True)
+        self.lora_sdr_hier_tx_0_2 = lora_sdr.hier_tx(pay_len, n_frame, 'sTomvXMuARDzMfJltZ4xSJ0dLGMDueK8PH00maiTXhiew9HzJmZzKNoP4zHkWGRC', cr, sf1, impl_head,has_crc, samp_rate, bw, 200, False)
         self.lora_sdr_hier_tx_0 = lora_sdr.hier_tx(pay_len, n_frame, 'sTomvXMuARDzMfJltZ4xSJ0dLGMDueK8PH00maiTXhiew9HzJmZzKNoP4zHkWGRC', cr, sf, impl_head,has_crc, samp_rate, bw, 200, True)
         self.lora_sdr_hier_rx_0 = lora_sdr.hier_rx(samp_rate, bw, sf, impl_head, cr, pay_len, has_crc)
         self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_ccf(4, (-0.128616616593872,-0.212206590789194,-0.180063263231421,3.89817183251938e-17,0.300105438719035,0.636619772367581,0.900316316157106,1,0.900316316157106,0.636619772367581,0.300105438719035,3.89817183251938e-17,-0.180063263231421,-0.212206590789194,-0.128616616593872))
         self.interp_fir_filter_xxx_0.declare_sample_delay(0)
         self.interp_fir_filter_xxx_0.set_min_output_buffer(16384)
         self.blocks_throttle_1 = blocks.throttle(gr.sizeof_gr_complex*1, samp_rate,False)
-        self.blocks_message_debug_0_0 = blocks.message_debug()
-        self.blocks_message_debug_0 = blocks.message_debug()
+        self.blocks_tag_debug_0 = blocks.tag_debug(gr.sizeof_gr_complex*1, '', "")
+        self.blocks_tag_debug_0.set_display(True)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
 
 
@@ -62,11 +62,10 @@ class lora_sim_multi(gr.top_block):
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.lora_sdr_hier_rx_0, 'ctrl_out'), (self.blocks_message_debug_0, 'print'))
         self.msg_connect((self.lora_sdr_hier_rx_0, 'ctrl_out'), (self.lora_sdr_multi_control_1, 'ctrl_in'))
-        self.msg_connect((self.lora_sdr_multi_control_1, 'ctrl_out0'), (self.blocks_message_debug_0_0, 'print'))
         self.msg_connect((self.lora_sdr_multi_control_1, 'ctrl_out1'), (self.lora_sdr_hier_tx_0, 'ctrl_in'))
         self.msg_connect((self.lora_sdr_multi_control_1, 'ctrl_out0'), (self.lora_sdr_hier_tx_0_2, 'ctrl_in'))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_tag_debug_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.blocks_throttle_1, 0))
         self.connect((self.blocks_throttle_1, 0), (self.interp_fir_filter_xxx_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.lora_sdr_hier_rx_0, 0))

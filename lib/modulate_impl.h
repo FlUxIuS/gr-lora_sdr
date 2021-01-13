@@ -75,6 +75,8 @@ private:
 
   bool m_zero_output;
 
+  bool m_multi_control;
+
   /**
    * @brief Gnuradio function that handles the PMT message
    * 
@@ -90,7 +92,7 @@ public:
    * @param samp_rate sampling rate
    * @param bw bandwith
    */
-  modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw);
+  modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw, bool multi_control);
 
   /**
    * @brief Destroy the modulate impl object
