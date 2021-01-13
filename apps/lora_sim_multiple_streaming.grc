@@ -344,22 +344,6 @@ blocks:
     coordinate: [371, 183]
     rotation: 0
     state: enabled
-- name: lora_sdr_multi_control_1
-  id: lora_sdr_multi_control
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_ctrl: '2'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [73, 374]
-    rotation: 0
-    state: enabled
 
 connections:
 - [blocks_add_xx_0, '0', blocks_tag_debug_0_0, '0']
@@ -367,11 +351,10 @@ connections:
 - [blocks_throttle_1, '0', blocks_tag_debug_0, '0']
 - [blocks_throttle_1, '0', interp_fir_filter_xxx_0, '0']
 - [interp_fir_filter_xxx_0, '0', lora_sdr_hier_rx_0, '0']
-- [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_multi_control_1, ctrl_in]
+- [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_hier_tx_0, ctrl_in]
+- [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_hier_tx_0_2, ctrl_in]
 - [lora_sdr_hier_tx_0, '0', blocks_add_xx_0, '1']
 - [lora_sdr_hier_tx_0_2, '0', blocks_add_xx_0, '0']
-- [lora_sdr_multi_control_1, ctrl_out0, lora_sdr_hier_tx_0_2, ctrl_in]
-- [lora_sdr_multi_control_1, ctrl_out1, lora_sdr_hier_tx_0, ctrl_in]
 
 metadata:
   file_format: 1

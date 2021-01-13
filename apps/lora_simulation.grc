@@ -177,44 +177,6 @@ blocks:
     coordinate: [309, 318]
     rotation: 0
     state: true
-- name: blocks_tag_debug_0
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_dewhit
-    num_inputs: '1'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [468, 579]
-    rotation: 0
-    state: disabled
-- name: blocks_tag_debug_0_0
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_fft_demod
-    num_inputs: '1'
-    type: int
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1668, 584]
-    rotation: 0
-    state: disabled
 - name: blocks_tag_debug_0_0_0
   id: blocks_tag_debug
   parameters:
@@ -232,63 +194,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [2310, 319]
-    rotation: 0
-    state: disabled
-- name: blocks_tag_debug_0_0_1
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_deinter
-    num_inputs: '1'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [981, 619]
-    rotation: 0
-    state: disabled
-- name: blocks_tag_debug_0_0_1_0
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_header
-    num_inputs: '1'
-    type: byte
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [707, 600]
-    rotation: 0
-    state: disabled
-- name: blocks_tag_debug_0_0_2
-  id: blocks_tag_debug
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    display: 'True'
-    filter: '""'
-    name: after_gray
-    num_inputs: '1'
-    type: int
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1506, 591]
     rotation: 0
     state: disabled
 - name: blocks_tag_debug_1
