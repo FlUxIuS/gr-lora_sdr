@@ -148,10 +148,6 @@ int data_source_sim_impl::general_work(int noutput_items,
       // let this thread sleep for the inputted mean time.
       boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
       frame_cnt++;
-      // add_item_tag(0, 1024, pmt::intern("status"), pmt::intern("done"));
-      // add_item_tag(0, nitems_written(0)+(2 * m_pay_len),
-      // pmt::intern("status"),
-      // pmt::intern("working"),pmt::intern("data_source_sim"));
       return 2 * m_pay_len;
     }
     // if the number of frames is the same -> all frames are sent
@@ -202,6 +198,7 @@ int data_source_sim_impl::general_work(int noutput_items,
   if (m_finished == true) {
     std::cout << "Sending work_done to blocks" << std::endl;
     std::cout << m_finished << std::endl;
+    //return 1;
     return WORK_DONE;
   }
 }

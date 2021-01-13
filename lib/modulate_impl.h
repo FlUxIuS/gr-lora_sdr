@@ -73,7 +73,7 @@ private:
    */
   uint32_t symb_cnt;
 
-  bool m_first;
+  bool m_zero_output;
 
   /**
    * @brief Gnuradio function that handles the PMT message

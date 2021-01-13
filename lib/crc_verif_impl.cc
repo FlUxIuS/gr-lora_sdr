@@ -103,7 +103,7 @@ int crc_verif_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   get_tags_in_range(return_tag, 0, 0, nitems_read(0) + 1);
   //if we found tags
   if (return_tag.size() > 0) {
-    std::cout << "TEst veryfiy" << std::endl;
+    std::cout << "CRC Verify send d_pmt_done" << std::endl;
     //message ctrl port we are done
     message_port_pub(pmt::mp("ctrl_out"),d_pmt_done);
     consume_each(ninput_items[0]);

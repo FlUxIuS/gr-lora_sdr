@@ -37,7 +37,7 @@ modulate_impl::modulate_impl(uint8_t sf, uint32_t samp_rate, uint32_t bw)
 
   n_up = 8;
   symb_cnt = 0;
-  m_first = false;
+  m_zero_output = false;
   message_port_register_in(pmt::mp("msg"));
   set_msg_handler(pmt::mp("msg"),
                   boost::bind(&modulate_impl::msg_handler, this, _1));
@@ -95,23 +95,16 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
   if (return_tag.size() > 0) {
     add_item_tag(0, nitems_written(0), pmt::intern("status"),
                  pmt::intern("done"));
-
-    // std::cout << "Test modulate" << std::endl;
-    // std::cout << return_tag.size() << std::endl;
-    // for (int i = 0; i < return_tag.size(); i++) {
-    //   std::cout << return_tag.at(i).value << std::endl;
-    // }
-    // pmt::pmt_t ret =
-    // if (m_first == false) {
-
-    // }else{
-    //   consume_each(ninput_items[0]);
-    //   noutput_items = 1;
-    // }
-    // m_first=true;
-    // out[0] = 0;
-      consume_each(ninput_items[0] );
-      noutput_items = 4;
+    m_zero_output = true;
+    consume_each(ninput_items[0]);
+    //upsampling factor
+    noutput_items = 4;
+  }
+  if (m_zero_output == true) {
+    memset(&out[0],0,m_samples_per_symbol * sizeof(gr_complex));
+    noutput_items = m_samples_per_symbol;
+    consume_each(ninput_items[0]);
+    return noutput_items;
   } else {
     noutput_items = m_samples_per_symbol;
     uint i = 0;
