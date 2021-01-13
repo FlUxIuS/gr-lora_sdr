@@ -106,17 +106,18 @@ int modulate_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
     // upsampling factor
     noutput_items = 4;
   }
-  if (m_zero_output == true) {
-    // for (int i = 0; i < m_samples_per_symbol; i++) {
-    //   out[0] = 0;
-    // }
-    memcpy(&out[0], 0, m_samples_per_symbol * sizeof(gr_complex));
+  else if (m_zero_output == true) {
+    for (int i = 0; i < m_samples_per_symbol; i++) {
+      out[i] = 0;
+    }
+    std::cout << "Adding zeros" << std::endl;
+    // memcpy(&out[0], 0, m_samples_per_symbol * sizeof(gr_complex));
     // unsigned char val = 0;
     // int *zero = (int *)val;
     // memset(&out[0], *zero, m_samples_per_symbol * sizeof(gr_complex));
     noutput_items = m_samples_per_symbol;
     consume_each(ninput_items[0]);
-    // return noutput_items;
+    //return noutput_items;
   } else {
     noutput_items = m_samples_per_symbol;
     uint i = 0;

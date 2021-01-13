@@ -182,8 +182,11 @@ int data_source_sim_impl::general_work(int noutput_items,
   }
   if (m_finished_wait == true && m_finished == false &&
       m_multi_control == false){
-        
+        // std::cout << "Waiting to do stuff"<< std::endl;
+        std::string str = "sTomvXMuARDzMfJltZ4xSJ0dLGMDueK8PH00maiTXhiew9HzJmZzKNoP4zHkWGRC";
+        message_port_pub(pmt::intern("msg"), pmt::mp(str));
         boost::this_thread::sleep(boost::posix_time::milliseconds(m_mean));
+        return 2 * m_pay_len;
       }
   if (m_finished_wait == true && m_finished == false &&
       m_multi_control == true) {

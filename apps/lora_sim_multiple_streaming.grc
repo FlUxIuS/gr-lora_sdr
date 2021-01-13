@@ -191,7 +191,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [659, 355]
+    coordinate: [656, 336]
     rotation: 0
     state: true
 - name: blocks_tag_debug_0
@@ -210,7 +210,26 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [763, 439]
+    coordinate: [1096, 442]
+    rotation: 0
+    state: true
+- name: blocks_tag_debug_0_0
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'True'
+    filter: '""'
+    name: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [752, 427]
     rotation: 0
     state: true
 - name: blocks_throttle_1
@@ -343,8 +362,9 @@ blocks:
     state: enabled
 
 connections:
-- [blocks_add_xx_0, '0', blocks_tag_debug_0, '0']
+- [blocks_add_xx_0, '0', blocks_tag_debug_0_0, '0']
 - [blocks_add_xx_0, '0', blocks_throttle_1, '0']
+- [blocks_throttle_1, '0', blocks_tag_debug_0, '0']
 - [blocks_throttle_1, '0', interp_fir_filter_xxx_0, '0']
 - [interp_fir_filter_xxx_0, '0', lora_sdr_hier_rx_0, '0']
 - [lora_sdr_hier_rx_0, ctrl_out, lora_sdr_multi_control_1, ctrl_in]
